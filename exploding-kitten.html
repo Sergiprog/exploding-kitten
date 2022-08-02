@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="shortcut icon" href="img/k.png" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&family=Caveat:wght@500&display=swap"
+			rel="stylesheet"
+		/>
+		<title>Взрывной котёнок</title>
+		<style>
+			body {
+				font-family: "Caveat", cursive;
+				font-size: 1.5rem;
+				background: linear-gradient(
+						180deg,
+						rgba(255, 255, 255, 1) 40%,
+						rgba(255, 169, 77, 0.6530987394957983) 84%,
+						rgba(255, 151, 70, 0.8183648459383753) 100%
+					)
+					fixed;
+			}
+			.wrapper {
+				display: flex;
+				justify-content: center;
+			}
+			.js-open-modal {
+				font-size: 1.5rem;
+				padding: 10px 20px;
+				display: inline-block;
+				background-color: #444;
+				color: #fff;
+				border-radius: 6px;
+				text-decoration: none;
+				position: absolute;
+				margin-top: 5vh;
+			}
+			.js-close-modal {
+				padding: 10px 20px;
+				display: inline-block;
+				background-color: #444;
+				color: #fff;
+				border-radius: 6px;
+				cursor: pointer;
+			}
+			.modal {
+				position: fixed;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				border: 1px solid #000;
+				padding: 10px;
+				text-align: center;
+				background-color: rgb(253, 242, 217);
+				z-index: 20;
+				display: none;
+			}
+			.overlay {
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(0, 0, 0, 0.4);
+				z-index: 10;
+				display: none;
+			}
+			#info {
+				font-size: 2rem;
+				margin-bottom: 50px;
+				margin-top: 300px;
+				position: absolute;
+				margin-left: 5vw;
+				font-family: "Amatic SC", cursive;
+			}
+			.gameButton {
+				margin-top: 230px;
+				margin-left: 7vw;
+			}
+			button {
+				padding: 10px 20px;
+				background-color: rgb(95, 92, 92);
+				color: #fff;
+				border-radius: 6px;
+				text-decoration: none;
+				position: absolute;
+				font-family: "Caveat", cursive;
+				font-size: 1.5rem;
+			}
+			#gameNew {
+				margin-left: 230px;
+			}
+			#gameEnd {
+				margin-right: 240px;
+			}
+
+			#cat {
+				position: absolute;
+				max-width: 300px;
+				transform: rotateY(180deg);
+				margin-top: -40px;
+			}
+			#gruz {
+				margin-top: 180px;
+				margin-left: 81px;
+				position: absolute;
+				max-width: 35px;
+			}
+			#sneakers {
+				max-width: 40vw;
+				max-height: 55vh;
+				bottom: 0px;
+				position: absolute;
+				display: flex;
+				left: 50%;
+				margin-left: -20vw;
+			}
+			#explosion {
+				width: 98vw;
+				max-height: 95vh;
+				position: absolute;
+				justify-content: center;
+			}
+		</style>
+	</head>
+
+	<body>
+		<!-- modal start -->
+		<div class="wrapper">
+			<a href="#" class="js-open-modal" data-modal="newWindow">Прочитать правила</a>
+		</div>
+
+		<div class="modal" data-modal="newWindow" id="mWindow">
+			<p class="title">Добро пожаловать в игру "Взрывной котёнок".</p>
+			<p class="text">
+				Вы уже обратили внимание на пару кроссовок? Представьте, что это ваши любимые =) Если кот
+				будет сыт, кроссовки будут в сохранности ¯\_(ツ)_/¯ <br />
+				Ваша задача: кормить кота, нажимая на соответствующую кнопку. Если сытость кота опустится до
+				0, вы уже ничего не сможете сделать, только ждать... Как будете готовы, нажмите на кнопку
+				"Начать игру".
+			</p>
+			<p class="js-close-modal" onclick="unhide()">С правилами ознакомился!</p>
+		</div>
+		<div class="overlay"></div>
+		<!-- modal end -->
+
+		<div>
+			<img src="img/revenge.gif" alt="cat" id="cat" />
+			<img src="img/payload.webp" alt="cat's revenge" id="gruz" />
+			<div id="sneak">
+				<img src="img/yourlove.webp" alt="favorite sneakers" id="sneakers" />
+			</div>
+			<img src="img/catend.jpg" alt="" id="explosion" />
+		</div>
+		<div class="wrapper"><button onclick="gameEnd()" id="gameEnd">Смотреть результаты</button></div>
+		<div class="wrapper"><button onclick="newGame()" id="gameNew">Начать новую игру</button></div>
+		<div id="info" hidden></div>
+		<div class="gameButton">
+			<button onclick="feedCat() " style="font-size: 1.5rem" id="btn">КОРМИТЬ КОТА!</button>
+			<button onclick="gameStart()" style="font-size: 1.5rem" id="gameStart">Начать игру</button>
+		</div>
+
+		<script>
+			// ИГРА
+			let name = prompt("Введите ваше имя:", "Любитель кроссовок");
+			let nickname = prompt("Введите имя кота:", "Барсик");
+			let food = 0;
+			let satiety = 40;
+			let hp = 0;
+			let button = document.getElementById("btn");
+			let start = document.getElementById("gameStart");
+			let end = document.getElementById("gameEnd");
+			let newG = document.getElementById("gameNew");
+			let info = document.getElementById("info");
+			let payload = document.getElementById("gruz");
+			let sneakers = document.getElementById("sneak");
+			button.hidden = true;
+			start.hidden = true;
+			end.hidden = true;
+			newG.hidden = true;
+			if (name == null) name = "Любитель кроссовок";
+			if (nickname == null) nickname = "кот";
+
+			function gameStart() {
+				start.hidden = true;
+				button.hidden = false;
+				satiety = 39;
+			}
+
+			function unhide() {
+				start.hidden = false;
+				info.hidden = false;
+			}
+
+			function feedCat() {
+				if (satiety != 0) {
+					satiety = satiety + 1;
+					food = food + 1;
+				}
+			}
+
+			function reduceSatiety() {
+				if (satiety == 0) satiety = 0;
+				else if (satiety == 40) satiety = 40;
+				else satiety = satiety - 1;
+				info.innerHTML =
+					"Участники: " +
+					name +
+					" и " +
+					nickname +
+					";" +
+					"<br>Корма насыпано: " +
+					food +
+					" ед.;" +
+					"<br>Сытость кота: " +
+					satiety +
+					"%;" +
+					"<br>Кошачья чаша терпения: " +
+					hp +
+					"%.";
+			}
+
+			setInterval(reduceSatiety, 100);
+			setInterval(increaseHp, 30);
+
+			// КОТ - АНИМАЦИЯ
+
+			let gruzImg = document.getElementById("gruz");
+			let catGif = document.getElementById("cat");
+			let explosion = document.getElementById("explosion");
+			let step = 0;
+			let stepp = 0;
+			let flag = true;
+			explosion.hidden = true;
+			catGif.hidden = true;
+			gruzImg.hidden = true;
+
+			function increaseHp() {
+				if (hp == 101) {
+					hp = 101;
+
+					function animationCat() {
+						if (window.innerWidth - 300 > step && flag) {
+							catGif.hidden = false;
+							catGif.style.transform = "scaleX(-1)";
+							step = step + 2;
+							catGif.style.left = step + "px";
+						} else {
+							catGif.hidden = true;
+						}
+					}
+
+					function animationPayload() {
+						if (window.innerWidth / 2.5 > stepp + 1) {
+							stepp = stepp + 2;
+							gruzImg.style.left = stepp + "px";
+							gruzImg.hidden = true;
+						} else if (window.innerHeight > stepp - window.innerWidth / 8) {
+							stepp = stepp + 1;
+							gruzImg.style.top = -window.innerWidth / 2.5 + stepp + "px";
+							gruzImg.hidden = false;
+						} else if (window.innerHeight <= stepp - window.innerWidth / 8) {
+							button.hidden = true;
+							start.hidden = true;
+							info.hidden = true;
+							sneakers.hidden = true;
+							payload.hidden = true;
+							newG.hidden = false;
+							explosion.hidden = false;
+							document.body.style.background = "#000";
+							end.hidden = false;
+						}
+					}
+
+					setInterval(animationCat, 200);
+					setInterval(animationPayload, 200);
+				} else if (satiety == 0) hp = hp + 1;
+			}
+
+			function gameEnd() {
+				alert("Твой кот поглатил " + food + " ед. корма! " + "КОНЕЦ ИГРЫ ;)");
+			}
+
+			function newGame() {
+				window.location.reload();
+			}
+		</script>
+		<script src="jquery-3.6.0.js"></script>
+		<script src="jquery-modal.js"></script>
+	</body>
+</html>
